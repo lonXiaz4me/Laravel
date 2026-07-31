@@ -11,7 +11,12 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nginx \
-    supervisor
+    supervisor \
+    gnupg
+
+# Install Node.js (needed for Vite build)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd
@@ -24,6 +29,9 @@ WORKDIR /var/www
 COPY . .
 
 RUN composer install --optimize-autoloader --no-dev
+
+# Install Node dependencies and build frontend assets
+RUN npm install && npm run build
 
 # Create SQLite database file
 RUN touch /var/www/database/database.sqlite
